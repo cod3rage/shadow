@@ -1,6 +1,6 @@
 import pygame
 import random
-from services import entities
+from entity_manager import ai_entity, entities, player
 
 class App:
     def __init__(self):
@@ -11,14 +11,18 @@ class App:
 
         self.local_time = 0
         self.tick = 0
+        self.cycle_tick = 0
         self.clock = pygame.time.Clock()
 
         self.scroll = []
 
-        self.player = entities.Player()
+        self.player = player.Player()
+        self.allied_forces = entities.EntityGroup('ally', [self.player])
+        self.enemies_forces = entities.EntityGroup('enemy')
 
-        for _ in range(200):
-            entities.Enemy((random.randint(40,120),random.randint(40,120)),spd=random.randint(15, 120))
+        # test allied units
+        for i in range(20):
+            self.enemies_forces.new(ai_entity.ground_ai((60,90), (random.randint(0,720),0)))
 
 
     # process organizer
@@ -32,6 +36,7 @@ class App:
             self.render()             # rendering objects
             pygame.display.update()   # adding render to screen
             self.tick = self.clock.tick(60)/1000
+            self.cycle_tick = (self.cycle_tick+1)%60
             self.local_time+=self.tick
 
 
@@ -48,12 +53,13 @@ class App:
         self.player.vx = (pressed[pygame.K_a] - pressed[pygame.K_d]) * 12
 
     def update(self):
-        entities.Update(self.tick)
-        # self.wave.update(self.tick)
+        self.enemies_forces.update(self.tick)
+        self.allied_forces.update(self.tick)
 
     def render(self):
         self.screen.fill((0,0,0))
-        entities.Render(self.screen)
+        self.enemies_forces.render(self.screen)
+        self.allied_forces.render(self.screen)
 
     # game commands
     def restart(self):
