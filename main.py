@@ -21,10 +21,13 @@ class App:
         self.enemies_forces = entities.EntityGroup('enemy')
 
         # test allied units
-        for i in range(1):
-            basic_ai = ai_entity.ground_ai((60,90), (random.randint(0,720),0))
+        for i in range(20):
+            basic_ai = ai_entity.ground_ai((60,90), (random.randint(0,720),0), atk_int=.6)
             basic_ai.target = self.player
             self.enemies_forces.new(basic_ai)
+        
+        self.allied_forces.enemies = self.enemies_forces
+        self.enemies_forces.enemies = self.allied_forces
 
 
     # process organizer
@@ -38,8 +41,11 @@ class App:
             self.render()             # rendering objects
             pygame.display.update()   # adding render to screen
             self.tick = self.clock.tick(60)/1000
-            self.cycle_tick = (self.cycle_tick+1)%60
+            self.cycle_tick = (self.cycle_tick+1)%120
             self.local_time+=self.tick
+
+            pygame.display.set_caption(str(self.clock.get_fps()//1))
+
 
 
     # processes
@@ -57,6 +63,9 @@ class App:
     def update(self):
         self.enemies_forces.update(self.tick)
         self.allied_forces.update(self.tick)
+        if self.cycle_tick == 0:
+            self.allied_forces.retarget()
+            self.enemies_forces.retarget()
 
     def render(self):
         self.screen.fill((0,0,0))

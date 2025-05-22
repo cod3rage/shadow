@@ -23,6 +23,8 @@ class PhysicsEntity:
         self.falling = True
         self.id = 0
         self.tag = ''
+        self.team = None
+        self.enemies = None
     
     def update(self, tick):
         if self.y - self.vy> self.floor:
@@ -48,16 +50,20 @@ class PhysicsEntity:
 # --------------------------------------------------- #
 
 class EntityGroup():
-    def __init__(self, tag, entities = None):
+    def __init__(self, tag, entities = None, enemies = None):
         self.cache = []
         self.tag = tag
+        self.enemies = enemies
         for unit in entities or []:
             self.new(unit)
+
 
     def new(self, unit):
         unit.id = len(self.cache)
         unit.tag = self.tag
+        unit.team = self
         self.cache.append(unit)
+        self.single_retarget(unit)
 
     def render(self, surface):
         for entity in self.cache:
@@ -74,3 +80,17 @@ class EntityGroup():
         for index in range(len(self.cache)):
             enitity = self.cache[index]
             enitity.id = index
+    
+    def retarget(self, targets = None):
+        self.enemies = targets or self.enemies
+        for entity in self.cache:
+            self.single_retarget(entity)
+    
+    def single_retarget(self, entity):
+        if (not self.enemies) or (not hasattr(entity,'target')): return
+        closest = entity.target
+        entity.enemies = self.enemies
+        for target in self.enemies.cache or []:
+            if abs(entity.x-target.x) <= abs(entity.x-closest.x):
+                closest = target
+        entity.target = closest

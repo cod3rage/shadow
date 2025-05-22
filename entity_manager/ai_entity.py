@@ -34,7 +34,7 @@ class ground_ai(entities.PhysicsEntity):
             self.attack()
     
     def attack(self):
-        print('atack')
+        pass
     
     def attacked(self, dmg):
         self.health -= dmg

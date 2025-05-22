@@ -17,9 +17,13 @@ class Player(entities.PhysicsEntity):
 
         self.last_kill = 0
         self.kill_streak = 0
+
         self.score = 0
         self.score_bonus = 0
         self.score_mul = 1
+
+        self.level = 0
+        self.exp = 0
 
         self.jumps = 1
         self.last_jump = 0
@@ -55,6 +59,8 @@ class Player(entities.PhysicsEntity):
             left,top,scale[0], scale[1]
         ))
         pygame.draw.circle(surface, (0,0,255),(self.x,self.y),12)
+
+    # skills
     
     def jump(self, global_time):
         if (global_time-self.last_jump <= 0.25) or (self.jumps <= 0): return
@@ -62,3 +68,43 @@ class Player(entities.PhysicsEntity):
         self.jumps -= 1
         self.vy = 12
         self.last_jump = global_time
+    
+    def dash(self):
+        pass
+
+    def basic_attack(self):
+        pass
+
+    def charge(self):
+        pass
+
+    def end_charge(self):
+        pass
+
+    # shikigami
+
+    def shadow(self):
+        pass
+
+    def rabbits(self):
+        pass
+    
+    def frog(self):
+        pass
+
+    def nue(self):
+        pass
+
+    def mahoraga(self):
+        pass
+
+    def simple_domain(self):
+        pass
+
+    # passives
+
+    def divine_wheel(self):
+        pass
+
+
+   
