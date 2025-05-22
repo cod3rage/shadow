@@ -53,12 +53,12 @@ class Player(entities.PhysicsEntity):
     
     def render(self, surface):
         super().render(surface)
-        scale = (120,120)
-        left, top = self.x+self.hqx-(scale[0]+self.hhx)*self.facing, self.y-scale[1]/2
-        pygame.draw.rect(surface, (255,0,0), pygame.rect.Rect(
-            left,top,scale[0], scale[1]
-        ))
-        pygame.draw.circle(surface, (0,0,255),(self.x,self.y),12)
+        # scale = (120,120)
+        # left, top = self.x+self.hqx-(scale[0]+self.hhx)*self.facing, self.y-scale[1]/2
+        # pygame.draw.rect(surface, (255,0,0), pygame.rect.Rect(
+        #     left,top,scale[0], scale[1]
+        # ))
+        # pygame.draw.circle(surface, (0,0,255),(self.x,self.y),12)
 
 
     def attacked(self, dmg=0, knockback=0, knockback_strength=0):
@@ -74,10 +74,21 @@ class Player(entities.PhysicsEntity):
     def dash(self):
         pass
 
-    def basic_attack(self, box = (50,50)):
+    def basic_attack(self, box = (120,120), pierce = 0):
+        if not self.enemies: return
         left, top = self.x + self.hqx - (box[0] + self.hhx) * self.facing , self.y - box[1] / 2
         right, bottom = left + box[0], top + box[1]
-        pass
+
+        harmed = 0
+        
+        for enemy in self.enemies.cache:
+            if left<enemy.x<=right and top<enemy.y<=bottom:
+                if harmed >= pierce and pierce > 0: continue
+                harmed+=1
+                enemy.attacked(20)
+                enemy.vx -= (enemy.x-self.x) * .5
+                enemy.vy += 6
+                
     
     def block(self):
         pass

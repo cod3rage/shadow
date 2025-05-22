@@ -1,3 +1,4 @@
+import pygame
 from . import entities
 
 class ground_ai(entities.PhysicsEntity):
@@ -32,7 +33,10 @@ class ground_ai(entities.PhysicsEntity):
         return abs(self.x - x) <= self.range and abs(self.y - y) <= self.range
     
     def render(self, surface):
-        super().render(surface)
+        if self.dead: 
+            pygame.draw.rect(surface,(100,100,100),pygame.rect.Rect(self.x-self.hqx,self.y-self.hqy,self.hhx,self.hhy))
+        else:
+            super().render(surface)
     
     def attack_request(self, tick):
         self.timer += tick

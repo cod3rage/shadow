@@ -26,6 +26,7 @@ class App:
             basic_ai.target = self.player
             self.enemies_forces.new(basic_ai)
         
+        self.player.enemies = self.enemies_forces
         self.allied_forces.enemies = self.enemies_forces
         self.enemies_forces.enemies = self.allied_forces
 
