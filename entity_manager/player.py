@@ -67,7 +67,6 @@ class Player(entities.PhysicsEntity):
     
     def jump(self, global_time):
         if (global_time-self.last_jump <= 0.25) or (self.jumps <= 0): return
-        
         self.jumps -= 1
         self.vy = 12
         self.last_jump = global_time
@@ -75,7 +74,15 @@ class Player(entities.PhysicsEntity):
     def dash(self):
         pass
 
-    def basic_attack(self):
+    def basic_attack(self, box = (50,50)):
+        left, top = self.x + self.hqx - (box[0] + self.hhx) * self.facing , self.y - box[1] / 2
+        right, bottom = left + box[0], top + box[1]
+        pass
+    
+    def block(self):
+        pass
+
+    def unblock(self):
         pass
 
     def charge(self):
@@ -101,13 +108,14 @@ class Player(entities.PhysicsEntity):
     def mahoraga(self):
         pass
 
-    def simple_domain(self):
-        pass
-
     # passives
 
     def divine_wheel(self):
         pass
+
+    def simple_domain(self):
+        pass
+
 
 
    

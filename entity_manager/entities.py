@@ -96,3 +96,4 @@ class EntityGroup():
             if abs(entity.x-target.x) <= abs(entity.x-closest.x):
                 closest = target
         entity.target = closest
+    

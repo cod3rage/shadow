@@ -56,6 +56,32 @@ class App:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_w:
                     self.player.jump(self.local_time)
+                if event.key == pygame.K_q:
+                    self.player.dash()
+                if event.key == pygame.K_g:
+                    self.player.charge()
+                if event.key == pygame.K_r:
+                    self.player.shadow()
+                if event.key == pygame.K_1:
+                    self.player.rabbits()
+                if event.key == pygame.K_2:
+                    self.player.frog()
+                if event.key == pygame.K_3:
+                    self.player.nue()
+                if event.key == pygame.K_e:
+                    self.player.mahoraga()
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_g:
+                    self.player.end_charge()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    self.player.basic_attack()
+                if event.button == 3:
+                    self.player.block()
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 3:
+                    self.player.unblock()
+            
         
         pressed = pygame.key.get_pressed()
         self.player.vx = (pressed[pygame.K_a] - pressed[pygame.K_d]) * 12
