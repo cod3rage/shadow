@@ -17,8 +17,9 @@ class PhysicsEntity:
         # velocity
         self.vx = 0
         self.vy = 0
-        # misc
+        # stats
         self.health = 100
+        # misc
         self.falling = True
         self.id = 0
         self.tag = ''
@@ -38,7 +39,7 @@ class PhysicsEntity:
     def render(self, surface):
         pygame.draw.rect(surface,(255,255,255),pygame.rect.Rect(self.x-self.hqx,self.y-self.hqy,self.hhx,self.hhy))
     
-    def hurt(self):
+    def attacked(self):
         pass
 
     def quit(self):

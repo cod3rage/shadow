@@ -22,9 +22,23 @@ class Player(entities.PhysicsEntity):
         self.score_mul = 1
 
         self.jumps = 1
+        self.last_jump = 0
     
     def update(self, tick):
-        super().update(tick)
+        if self.y - self.vy> self.floor:
+            self.y = self.floor
+            self.vy = 0 
+            self.falling = False
+            self.jumps = 2
+        elif self.y < self.floor :
+            self.vy = max(-50,self.vy-30*tick)
+            self.falling = True
+        self.vx -= tick * 12 * self.vx
+        self.y -= self.vy
+        self.x -= self.vx
+
+        #
+
         self.x = max(min(self.x, 720-self.hqx),self.hqx)
         
         if self.vx < -1:
@@ -41,3 +55,10 @@ class Player(entities.PhysicsEntity):
             left,top,scale[0], scale[1]
         ))
         pygame.draw.circle(surface, (0,0,255),(self.x,self.y),12)
+    
+    def jump(self, global_time):
+        if (global_time-self.last_jump <= 0.25) or (self.jumps <= 0): return
+        
+        self.jumps -= 1
+        self.vy = 12
+        self.last_jump = global_time

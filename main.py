@@ -21,8 +21,10 @@ class App:
         self.enemies_forces = entities.EntityGroup('enemy')
 
         # test allied units
-        for i in range(20):
-            self.enemies_forces.new(ai_entity.ground_ai((60,90), (random.randint(0,720),0)))
+        for i in range(1):
+            basic_ai = ai_entity.ground_ai((60,90), (random.randint(0,720),0))
+            basic_ai.target = self.player
+            self.enemies_forces.new(basic_ai)
 
 
     # process organizer
@@ -47,7 +49,7 @@ class App:
                 return True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_w:
-                    self.player.vy = max(12,self.player.vy+12)
+                    self.player.jump(self.local_time)
         
         pressed = pygame.key.get_pressed()
         self.player.vx = (pressed[pygame.K_a] - pressed[pygame.K_d]) * 12
