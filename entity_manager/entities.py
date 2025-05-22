@@ -18,7 +18,8 @@ class PhysicsEntity:
         self.vx = 0
         self.vy = 0
         # stats
-        self.health = 100
+        self.health = 200
+        self.max_health = 200
         # misc
         self.falling = True
         self.id = 0
@@ -41,10 +42,12 @@ class PhysicsEntity:
     def render(self, surface):
         pygame.draw.rect(surface,(255,255,255),pygame.rect.Rect(self.x-self.hqx,self.y-self.hqy,self.hhx,self.hhy))
     
-    def attacked(self):
+    def attacked(self, dmg = 0, knockback = 0, knockback_strength = 0):
         pass
 
-    def quit(self):
+    def delete(self):
+        if self.team:
+            self.team.delete(self.id)
         del self
 
 # --------------------------------------------------- #
@@ -75,7 +78,6 @@ class EntityGroup():
     
     def delete(self, id = None):
         if not (id in self.cache): return
-        self.cache[id].delete()
         del self.cache[id]
         for index in range(len(self.cache)):
             enitity = self.cache[index]

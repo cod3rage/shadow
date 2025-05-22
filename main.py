@@ -22,7 +22,7 @@ class App:
 
         # test allied units
         for i in range(20):
-            basic_ai = ai_entity.ground_ai((60,90), (random.randint(0,720),0), atk_int=.6)
+            basic_ai = ai_entity.ground_ai((60,90), (random.randint(0,720),0), atk_int=2)
             basic_ai.target = self.player
             self.enemies_forces.new(basic_ai)
         

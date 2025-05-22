@@ -1,7 +1,7 @@
 from . import entities
 
 class ground_ai(entities.PhysicsEntity):
-    def __init__(self, hitbox=(60,90), pos=(0,0), range = 200, spd = 12,hp = 100, atk_int = .2):
+    def __init__(self, hitbox=(60,90), pos=(0,0), range = 60, spd = 20,hp = 100, atk_int = .2):
         super().__init__(hitbox, pos)
         self.target = None
         self.range = range
@@ -20,6 +20,13 @@ class ground_ai(entities.PhysicsEntity):
             self.attack_request(tick)
         else:
             self.timer = 0
+            self.forward = self.target.x <= self.x
+            if self.forward:
+                self.vx = max(-self.walkspeed,self.vx+(self.walkspeed/2)*tick)
+            else:
+                self.vx = min(self.walkspeed,self.vx-(self.walkspeed/2)*tick)
+                
+
 
     def in_range(self, x, y):
         return abs(self.x - x) <= self.range and abs(self.y - y) <= self.range
@@ -34,7 +41,7 @@ class ground_ai(entities.PhysicsEntity):
             self.attack()
     
     def attack(self):
-        pass
+        self.target.attacked(5)
     
     def attacked(self, dmg):
         self.health -= dmg

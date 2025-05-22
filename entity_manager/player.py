@@ -60,6 +60,9 @@ class Player(entities.PhysicsEntity):
         ))
         pygame.draw.circle(surface, (0,0,255),(self.x,self.y),12)
 
+
+    def attacked(self, dmg=0, knockback=0, knockback_strength=0):
+        print('attacked')
     # skills
     
     def jump(self, global_time):
