@@ -80,6 +80,8 @@ class Player(entities.PhysicsEntity):
 
         self.rotation = math.atan2(mouse_pos[1]-self.y, mouse_pos[0]-self.x)
 
+        self.current().update(self.App.local_time)
+
     
     def render(self, surface):
         super().render(surface)
@@ -87,6 +89,9 @@ class Player(entities.PhysicsEntity):
         pygame.draw.circle(surface, (255,0,0), (xrot, yrot), 5)
     
     # utilities 
+
+    def current(self):
+        return self.Primary if self.Primary_Equiped else self.Secondary
 
     def bias_angle(self,start, end, angle):
         return (start <= angle <= end) if start <= end else (angle >= end or angle <= start)
@@ -139,7 +144,7 @@ class Player(entities.PhysicsEntity):
         for enemy in self.enemies.cache:
             for i in range(bullet_accuracy): # divisions along y axis
                 agg = math.degrees(math.atan2((enemy.y-enemy.hqy) + enemy.hhy * (i/bullet_accuracy) - self.y, enemy.x - self.x))
-                if self.bias_angle(most, least, agg):
+                if self.bias_angle(least, most, agg):
                     self.div_sort(canidates,[
                         enemy ,
                         math.sqrt((self.x - enemy.x)**2 + (self.y-enemy.y)**2)
@@ -176,10 +181,15 @@ class Player(entities.PhysicsEntity):
     def begin_shoot(self):
         self.shoot()
         self.firing = True
-
     
     def shoot(self):
-        current = self.Primary if self.Primary_Equiped else self.Secondary
+        blicky = self.current()
+        if blicky.request_fire(self.App.local_time):
+            self.bullet(*blicky.data())
+            blicky.fired(self.App.local_time)
+            print('fired')
+        else:
+            print(blicky.reloading)
         
     
     def end_shoot(self):
@@ -192,7 +202,8 @@ class Player(entities.PhysicsEntity):
         self.gaurding = False
 
     def reload(self):
-        pass
+        current = self.Primary if self.Primary_Equiped else self.Secondary
+        current.reload(self.App.local_time)
 
     def swap_primary(self):
         self.Primary_Equiped = not self.Primary_Equiped
