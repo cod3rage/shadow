@@ -38,6 +38,7 @@ class Player(entities.PhysicsEntity):
         self.Secondary = weapon.Gun()
 
         self.Primary_Equiped = True
+        self.firing = False
 
         # gunshot, dash, jump
         self.cd_lst = [0,0,0]
@@ -138,11 +139,12 @@ class Player(entities.PhysicsEntity):
         for enemy in self.enemies.cache:
             for i in range(bullet_accuracy): # divisions along y axis
                 agg = math.degrees(math.atan2((enemy.y-enemy.hqy) + enemy.hhy * (i/bullet_accuracy) - self.y, enemy.x - self.x))
-                if self.bias_angle(least, most, agg):
+                if self.bias_angle(most, least, agg):
                     self.div_sort(canidates,[
                         enemy ,
                         math.sqrt((self.x - enemy.x)**2 + (self.y-enemy.y)**2)
                     ])
+                    print(agg, angle)
                     break
 
         if len(canidates) > pierce > 0:
@@ -171,11 +173,17 @@ class Player(entities.PhysicsEntity):
                 enemy.vx -= max(-50, min(50, box[0]/(enemy.x-self.x) * 12))
                 enemy.vy += 16
     
+    def begin_shoot(self):
+        self.shoot()
+        self.firing = True
+
+    
     def shoot(self):
-        if self.Primary_Equiped:
-            self.bullet(*self.Primary.data())
-        else:
-            self.bullet(*self.Secondary.data())
+        current = self.Primary if self.Primary_Equiped else self.Secondary
+        
+    
+    def end_shoot(self):
+        self.firing = False
 
     def block(self):
         self.gaurding = True
@@ -183,37 +191,28 @@ class Player(entities.PhysicsEntity):
     def unblock(self):
         self.gaurding = False
 
-    def charge(self):
+    def reload(self):
         pass
 
-    def end_charge(self):
-        pass
+    def swap_primary(self):
+        self.Primary_Equiped = not self.Primary_Equiped
+        if self.Primary_Equiped:
+            self.Primary.equiped()
+            self.Secondary.unquiped()
+        else:
+            self.Secondary.equiped()
+            self.Primary.unquiped()
+        
+
 
     # shikigami
 
-    def shadow(self):
-        pass
-
-    def rabbits(self):
-        pass
-    
-    def frog(self):
-        pass
-
-    def nue(self):
-        pass
 
     def mahoraga(self):
         self.vx = math.cos(self.rotation) * 50
         self.vy = math.sin(self.rotation) * 20
 
     # passives
-
-    def divine_wheel(self):
-        pass
-
-    def simple_domain(self):
-        pass
 
 
 

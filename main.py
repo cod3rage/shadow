@@ -59,27 +59,20 @@ class App:
                     self.player.jump()
                 if event.key == pygame.K_q:
                     self.player.dash()
-                if event.key == pygame.K_g:
-                    self.player.charge()
                 if event.key == pygame.K_r:
-                    self.player.shadow()
+                    self.player.reload()
                 if event.key == pygame.K_1:
-                    self.player.rabbits()
-                if event.key == pygame.K_2:
-                    self.player.frog()
-                if event.key == pygame.K_3:
-                    self.player.nue()
+                    self.player.swap_primary()
                 if event.key == pygame.K_e:
                     self.player.mahoraga()
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_g:
-                    self.player.end_charge()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    self.player.shoot()
+                    self.player.begin_shoot()
                 if event.button == 3:
                     self.player.block()
             if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    self.player.end_shoot()
                 if event.button == 3:
                     self.player.unblock()
                 
