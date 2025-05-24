@@ -25,6 +25,7 @@ class PhysicsEntity:
         self.id = 0
         self.tag = ''
         self.team = None
+        self.dead = False
         self.enemies = None
     
     def update(self, tick):
@@ -48,7 +49,8 @@ class PhysicsEntity:
     def delete(self):
         if self.team:
             self.team.delete(self.id)
-        del self
+        self.id = None
+        
 
 # --------------------------------------------------- #
 
@@ -77,8 +79,8 @@ class EntityGroup():
             entity.update(tick) 
     
     def delete(self, id = None):
-        if not (id in self.cache): return
-        del self.cache[id]
+        if not (isinstance(id, int) and 0 <= id < len(self.cache)): return
+        self.cache.pop(id)
         for index in range(len(self.cache)):
             enitity = self.cache[index]
             enitity.id = index

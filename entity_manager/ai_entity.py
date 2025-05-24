@@ -12,7 +12,7 @@ class ground_ai(entities.PhysicsEntity):
         self.interval = atk_int
 
         self.timer = 0
-        self.dead = False
+        self.title = 'Entity'
     
     def update(self, tick):
         super().update(tick)
@@ -56,3 +56,4 @@ class ground_ai(entities.PhysicsEntity):
     
     def died(self):
         self.dead = True
+        self.delete()

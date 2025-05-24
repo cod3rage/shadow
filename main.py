@@ -21,7 +21,7 @@ class App:
         self.enemies_forces = entities.EntityGroup('enemy')
 
         # test allied units
-        for i in range(20):
+        for i in range(1):
             basic_ai = ai_entity.ground_ai((60,90), (random.randint(0,720),0), atk_int=2)
             basic_ai.target = self.player
             self.enemies_forces.new(basic_ai)
@@ -76,7 +76,7 @@ class App:
                     self.player.end_charge()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    self.player.basic_attack()
+                    self.player.shoot()
                 if event.button == 3:
                     self.player.block()
             if event.type == pygame.MOUSEBUTTONUP:

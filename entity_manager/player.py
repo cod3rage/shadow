@@ -1,5 +1,8 @@
 import pygame
+import math
 from . import entities
+
+bullet_accuracy = 5
 
 class Player(entities.PhysicsEntity):
     def __init__(self):
@@ -17,6 +20,7 @@ class Player(entities.PhysicsEntity):
 
         self.last_kill = 0
         self.kill_streak = 0
+        self.rotation = 0
 
         self.score = 0
         self.score_bonus = 0
@@ -49,21 +53,20 @@ class Player(entities.PhysicsEntity):
             self.facing = 0
         elif self.vx > 1:
             self.facing = 1
+        
+        mouse_pos = pygame.mouse.get_pos()
+
+        self.rotation = math.atan2(mouse_pos[1]-self.y, mouse_pos[0]-self.x)
 
     
     def render(self, surface):
         super().render(surface)
-        # scale = (120,120)
-        # left, top = self.x+self.hqx-(scale[0]+self.hhx)*self.facing, self.y-scale[1]/2
-        # pygame.draw.rect(surface, (255,0,0), pygame.rect.Rect(
-        #     left,top,scale[0], scale[1]
-        # ))
-        # pygame.draw.circle(surface, (0,0,255),(self.x,self.y),12)
+        xrot, yrot = math.cos(self.rotation) * 50 + self.x, math.sin(self.rotation) * 50 + self.y
+        pygame.draw.circle(surface, (255,0,0), (xrot, yrot), 5)
 
 
     def attacked(self, dmg=0, knockback=0, knockback_strength=0):
-        print('attacked')
-    # skills
+        pass
     
     def jump(self, global_time):
         if (global_time-self.last_jump <= 0.25) or (self.jumps <= 0): return
@@ -74,21 +77,26 @@ class Player(entities.PhysicsEntity):
     def dash(self):
         pass
 
-    def basic_attack(self, box = (120,120), pierce = 0):
+    def shoot(self, angle = 20, pierce = 0):
         if not self.enemies: return
-        left, top = self.x + self.hqx - (box[0] + self.hhx) * self.facing , self.y - box[1] / 2
-        right, bottom = left + box[0], top + box[1]
+        
+        degre, rads = math.degrees(self.rotation), math.radians(angle/2)
+        most, least = ((math.degrees(self.rotation+rads)+180)%360)-180,((math.degrees(self.rotation-rads)+180)%360)-180
 
         harmed = 0
         
         for enemy in self.enemies.cache:
-            if left<enemy.x<=right and top<enemy.y<=bottom:
-                if harmed >= pierce and pierce > 0: continue
-                harmed+=1
-                enemy.attacked(20)
-                enemy.vx -= (enemy.x-self.x) * .5
-                enemy.vy += 6
-                
+            hit = False
+            for i in range(bullet_accuracy): # divisions along y axis
+                agg = math.degrees(math.atan2((enemy.y-enemy.hqy) + enemy.hhy * (i/bullet_accuracy) - self.y, enemy.x - self.x))
+                if self.bias_angle(least, most, agg):
+                    hit = True
+                    break
+            print(hit)
+
+
+    def bias_angle(self,start, end, angle):
+        return (start <= angle <= end) if start <= end else (angle >= end or angle <= start)
     
     def block(self):
         pass
