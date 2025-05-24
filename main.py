@@ -16,7 +16,7 @@ class App:
 
         self.scroll = []
 
-        self.player = player.Player()
+        self.player = player.Player(self)
         self.allied_forces = entities.EntityGroup('ally', [self.player])
         self.enemies_forces = entities.EntityGroup('enemy')
 
@@ -56,9 +56,9 @@ class App:
                 return True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_w:
-                    self.player.jump(self.local_time)
+                    self.player.jump()
                 if event.key == pygame.K_q:
-                    self.player.dash(self.local_time)
+                    self.player.dash()
                 if event.key == pygame.K_g:
                     self.player.charge()
                 if event.key == pygame.K_r:
@@ -82,6 +82,7 @@ class App:
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 3:
                     self.player.unblock()
+                
             
         
         pressed = pygame.key.get_pressed()
