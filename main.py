@@ -58,7 +58,7 @@ class App:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_w:
                     self.player.jump(self.local_time)
                 if event.key == pygame.K_q:
-                    self.player.dash()
+                    self.player.dash(self.local_time)
                 if event.key == pygame.K_g:
                     self.player.charge()
                 if event.key == pygame.K_r:
@@ -85,7 +85,9 @@ class App:
             
         
         pressed = pygame.key.get_pressed()
-        self.player.vx = (pressed[pygame.K_a] - pressed[pygame.K_d]) * 12
+        movement = (pressed[pygame.K_a] - pressed[pygame.K_d])
+        self.player.x -= movement * 12
+        self.player.vx += movement
 
     def update(self):
         self.enemies_forces.update(self.tick)

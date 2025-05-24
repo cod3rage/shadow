@@ -16,8 +16,8 @@ class ground_ai(entities.PhysicsEntity):
     
     def update(self, tick):
         super().update(tick)
-        if (not self.target) or self.falling or self.dead: return
-        if self.in_range(self.target.x, self.target.y):
+        if (not self.target) or self.falling or self.dead or self.soft_locked: return
+        if self.in_range(self.target.x, self.target.y) and  0 < self.x < 720:
             self.attack_request(tick)
         else:
             self.timer = 0

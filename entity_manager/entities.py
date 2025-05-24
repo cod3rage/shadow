@@ -27,6 +27,7 @@ class PhysicsEntity:
         self.team = None
         self.dead = False
         self.enemies = None
+        self.soft_locked = False
     
     def update(self, tick):
         if self.y - self.vy> self.floor:
@@ -34,7 +35,7 @@ class PhysicsEntity:
             self.vy = 0 
             self.falling = False
         elif self.y < self.floor :
-            self.vy = max(-50,self.vy-30*tick)
+            self.vy = max(-50,self.vy - 50*tick)
             self.falling = True
         self.vx -= tick * 12 * self.vx
         self.y -= self.vy
