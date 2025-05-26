@@ -27,9 +27,17 @@ class PhysicsEntity:
         self.team = None
         self.dead = False
         self.enemies = None
-        self.soft_locked = False
+
+        self.stunned = False
+        self.stun_cache = 0
+
+        self.local_time = 0
     
     def update(self, tick):
+        self.local_time += tick
+        if self.stunned:
+            self.stun_cache = max(0, self.stun_cache - tick)
+            self.stunned = (self.stun_cache == 0)
         if self.y - self.vy> self.floor:
             self.y = self.floor
             self.vy = 0 
@@ -44,8 +52,12 @@ class PhysicsEntity:
     def render(self, surface):
         pygame.draw.rect(surface,(255,255,255),pygame.rect.Rect(self.x-self.hqx,self.y-self.hqy,self.hhx,self.hhy))
     
-    def attacked(self, dmg = 0, knockback = 0, knockback_strength = 0):
+    def attacked(self, dmg = 0, attacker = None):
         pass
+
+    def stun(self, time = .1):
+        self.stunned = True
+        self.stun_cache += time
 
     def delete(self):
         if self.team:
@@ -96,7 +108,7 @@ class EntityGroup():
         closest = entity.target
         entity.enemies = self.enemies
         for target in self.enemies.cache or []:
-            if abs(entity.x-target.x) <= abs(entity.x-closest.x):
+            if not closest or abs(entity.x-target.x) <= abs(entity.x-closest.x):
                 closest = target
         entity.target = closest
     

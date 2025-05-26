@@ -5,15 +5,14 @@ from . import entities, weapon
 bullet_accuracy = 5
 
 class Player(entities.PhysicsEntity):
-    def __init__(self, App):
+    def __init__(self):
         super().__init__((60,90),(360,360))
-        self.App = App
         self.facing = 0
 
         self.dmg = 30
-        self.health = 100
+        self.health = 150
         self.regen_speed = 5 # per sec
-        self.max_health = 100
+        self.max_health = 150
         
         self.dmg_mul = 1
         self.dmg_bonus = 0
@@ -34,22 +33,26 @@ class Player(entities.PhysicsEntity):
         self.last_jump = 0
         self.gaurding = False
 
-        self.Primary = weapon.Gun()
+        self.Primary = weapon.Gun(30,.2, True)
         self.Secondary = weapon.Gun()
 
         self.Primary_Equiped = True
         self.firing = False
 
-        # gunshot, dash, jump
-        self.cd_lst = [0,0,0]
+        # gunshot, dash, jump, parry
+        self.cd_lst = [0,0,0, -200]
     
     def update(self, tick):
+        self.local_time += tick
+        if self.stunned:
+            self.stun_cache = max(0, self.stun_cache - tick)
+            self.stunned = (self.stun_cache == 0)
         if self.y - self.vy> self.floor:
             self.y = self.floor
             if self.vy <= -22:
                 hurt_amt = abs(self.vy)/22
                 slam_scale = 200*hurt_amt
-                self.basic_attack((slam_scale,slam_scale), 0, (slam_scale/2,slam_scale/2), 10*hurt_amt)
+                self.basic_attack((slam_scale,slam_scale), 0, (slam_scale/2,slam_scale/2), 3*hurt_amt)
             self.vy = 0 
             self.falling = False
             self.jumps = 2
@@ -57,7 +60,7 @@ class Player(entities.PhysicsEntity):
             self.vy = max(-50,self.vy - 50 * tick) # gravity
             self.falling = True
         
-        if (0<(self.x - tick * 12 * self.vx)<720-self.hqx):
+        if (self.hqx<(self.x - tick * 12 * self.vx)<720-self.hqx):
             self.vx -= tick * 12 * self.vx
         else:
             self.vx = -self.vx
@@ -80,7 +83,9 @@ class Player(entities.PhysicsEntity):
 
         self.rotation = math.atan2(mouse_pos[1]-self.y, mouse_pos[0]-self.x)
 
-        self.current().update(self.App.local_time)
+        self.current().update(self.local_time)
+        if self.firing and self.current().auto:
+            self.shoot()
 
     
     def render(self, surface):
@@ -94,7 +99,7 @@ class Player(entities.PhysicsEntity):
         return self.Primary if self.Primary_Equiped else self.Secondary
 
     def bias_angle(self,start, end, angle):
-        return (start <= angle <= end) if start <= end else (angle >= end or angle <= start)
+        return (start <= angle <= end) if start <= end else (angle >= start or angle <= end)
     
     def div_sort(self, lst:list, item):
         pos = 0 
@@ -107,7 +112,7 @@ class Player(entities.PhysicsEntity):
     
     def damage(self, target, amt = 0):
         if not (target): return
-        target.attacked( amt * self.dmg_mul + self.dmg_bonus )
+        target.attacked( amt * self.dmg_mul + self.dmg_bonus, self)
         if target.dead:
             self.score += target.max_health * self.score_mul + self.score_bonus
         
@@ -115,20 +120,21 @@ class Player(entities.PhysicsEntity):
     # abilitites
 
 
-    def attacked(self, dmg=0, knockback=0, knockback_strength=0):
-        pass
+    def attacked(self, dmg=0, attacker = None):
+        self.health -= dmg
+        print(self.health)
     
     def jump(self):
-        if (self.App.local_time-self.cd_lst[2] <= 0.25) or (self.jumps <= 0): return
+        if (self.local_time-self.cd_lst[2] <= 0.25) or (self.jumps <= 0): return
         self.jumps -= 1
         self.vy = 16
-        self.cd_lst[2] = self.App.local_time
+        self.cd_lst[2] = self.local_time
     
     def dash(self):
-        if (self.App.local_time - self.cd_lst[1] <= 2): return
+        if (self.local_time - self.cd_lst[1] <= 2): return
         self.vx = -math.cos(self.rotation) * 40
         self.vy = -math.sin(self.rotation) * 28
-        self.cd_lst[1] = self.App.local_time
+        self.cd_lst[1] = self.local_time
 
     def bullet(self, angle = 20, pierce = 0, knock_back = 20, recoil = 25, damage = 20):
         if not self.enemies: return
@@ -149,7 +155,7 @@ class Player(entities.PhysicsEntity):
                         enemy ,
                         math.sqrt((self.x - enemy.x)**2 + (self.y-enemy.y)**2)
                     ])
-                    print(agg, angle)
+                    print(agg, most, least)
                     break
 
         if len(canidates) > pierce > 0:
@@ -184,34 +190,27 @@ class Player(entities.PhysicsEntity):
     
     def shoot(self):
         blicky = self.current()
-        if blicky.request_fire(self.App.local_time):
+        if blicky.request_fire(self.local_time):
             self.bullet(*blicky.data())
-            blicky.fired(self.App.local_time)
-            print('fired')
-        else:
-            print(blicky.reloading)
-        
-    
+            blicky.fired(self.local_time)
+     
     def end_shoot(self):
         self.firing = False
 
-    def block(self):
-        self.gaurding = True
-
-    def unblock(self):
-        self.gaurding = False
+    def parry(self):
+        self.cd_lst[3] = self.local_time
 
     def reload(self):
         current = self.Primary if self.Primary_Equiped else self.Secondary
-        current.reload(self.App.local_time)
+        current.reload(self.local_time)
 
     def swap_primary(self):
         self.Primary_Equiped = not self.Primary_Equiped
         if self.Primary_Equiped:
-            self.Primary.equiped()
+            self.Primary.equiped(self.local_time)
             self.Secondary.unquiped()
         else:
-            self.Secondary.equiped()
+            self.Secondary.equiped(self.local_time)
             self.Primary.unquiped()
         
 
@@ -220,8 +219,8 @@ class Player(entities.PhysicsEntity):
 
 
     def mahoraga(self):
-        self.vx = math.cos(self.rotation) * 50
-        self.vy = math.sin(self.rotation) * 20
+        self.vx += math.cos(self.rotation) * 50
+        self.vy += math.sin(self.rotation) * 20
 
     # passives
 

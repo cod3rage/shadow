@@ -16,19 +16,24 @@ class App:
 
         self.scroll = []
 
-        self.player = player.Player(self)
+        self.player = player.Player()
         self.allied_forces = entities.EntityGroup('ally', [self.player])
         self.enemies_forces = entities.EntityGroup('enemy')
 
-        # test allied units
-        for i in range(1):
-            basic_ai = ai_entity.ground_ai((60,90), (random.randint(0,720),0), atk_int=2)
-            basic_ai.target = self.player
-            self.enemies_forces.new(basic_ai)
+        # test units
+        for a in range(12):
+            self.enemies_forces.new(ai_entity.Transfigured((0 - a * 20, 0)))
+            self.enemies_forces.new(ai_entity.Vengful())
+            self.enemies_forces.new(ai_entity.Thunder())
+            self.enemies_forces.new(ai_entity.JoGoat())
+            self.enemies_forces.new(ai_entity.BigRaga((720,0)))  
         
         self.player.enemies = self.enemies_forces
         self.allied_forces.enemies = self.enemies_forces
         self.enemies_forces.enemies = self.allied_forces
+
+        self.allied_forces.retarget()
+        self.enemies_forces.retarget()
 
 
     # process organizer
@@ -69,12 +74,11 @@ class App:
                 if event.button == 1:
                     self.player.begin_shoot()
                 if event.button == 3:
-                    self.player.block()
+                    self.player.parry()
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     self.player.end_shoot()
-                if event.button == 3:
-                    self.player.unblock()
+
                 
             
         
@@ -96,11 +100,9 @@ class App:
         self.allied_forces.render(self.screen)
 
     # game commands
-    def restart(self):
-        pass
+    def restart(self): return
     
-    def next_wave(self):
-        pass
+    def next_wave(self): return
 
     def quit(self):
         self.running = False

@@ -15,7 +15,7 @@ class Gun():
         self.reload_g = 0 # time perameter
         #
         self.fire_rate_g = 0 # time perameter
-        self.fire_rate = 1 
+        self.fire_rate = fire_rate 
 
         self.firing = False
 
@@ -25,7 +25,7 @@ class Gun():
         return self.angle, self.pierce, self.knockback, self.recoil, self.damage
     
     def update(self, g_time):
-        if self.reloading and g_time-self.reload_g >= self.reload_time:
+        if self.reloading and (g_time-self.reload_g >= self.reload_time) and (self.reload_g >= 0):
             self.rounds = self.mag
             self.reloading = False
 
@@ -45,11 +45,15 @@ class Gun():
     def fired(self, g_time = 0):
         self.fire_rate_g = g_time
         self.rounds -= 1
-        
-        
     
-    def equiped(self):
-        pass
+    def modify(self, attrs:dict):
+        for mod_name, value in attrs.items():
+            if hasattr(self, mod_name) and not callable(self[mod_name]):
+                self[mod_name] = value
+    
+    def equiped(self, g_time):
+        if self.reloading: 
+            self.reload_g = g_time
 
     def unquiped(self):
         pass
