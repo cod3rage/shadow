@@ -128,7 +128,6 @@ class BigRaga(ground_ai):
         right, bottom = left + self.range * 2, top + self.range * 2
 
         for enemy in self.enemies.cache:
-            print(enemy.y)
             if left<enemy.x<=right and top<enemy.y<=bottom:
                 enemy.attacked(self.damage, self)
                 enemy.vx -= max(-50, min(50, self.range/(enemy.x-self.x) * 12))

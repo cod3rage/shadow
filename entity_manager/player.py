@@ -31,7 +31,7 @@ class Player(entities.PhysicsEntity):
 
         self.jumps = 1
         self.last_jump = 0
-        self.gaurding = False
+        self.gaurding = 0
 
         self.Primary = weapon.Gun(30,.2, True)
         self.Secondary = weapon.Gun()
@@ -40,7 +40,7 @@ class Player(entities.PhysicsEntity):
         self.firing = False
 
         # gunshot, dash, jump, parry
-        self.cd_lst = [0,0,0, -200]
+        self.cd_lst = [0,0,0,0]
     
     def update(self, tick):
         self.local_time += tick
@@ -115,14 +115,28 @@ class Player(entities.PhysicsEntity):
         target.attacked( amt * self.dmg_mul + self.dmg_bonus, self)
         if target.dead:
             self.score += target.max_health * self.score_mul + self.score_bonus
+            if self.local_time - self.last_kill <= 3:
+                self.kill_streak += 1
+            self.last_kill = self.local_time
+            self.score_bonus = self.kill_streak * 100
+            self.score_mul = max(self.kill_streak / 6, 1)
+            self.dmg_bonus = max(self.kill_streak * 2, 1)
+            self.dmg_mul = max((self.kill_streak//3) * 2, 1)
+            if self.kill_streak % 4:
+                self.current().rounds += 1
+
         
 
     # abilitites
 
 
     def attacked(self, dmg=0, attacker = None):
+        if self.local_time - self.gaurding <= .5:
+            self.gaurding = 0
+            if attacker:
+                attacker.attacked(dmg/2)
+            return
         self.health -= dmg
-        print(self.health)
     
     def jump(self):
         if (self.local_time-self.cd_lst[2] <= 0.25) or (self.jumps <= 0): return
@@ -155,7 +169,6 @@ class Player(entities.PhysicsEntity):
                         enemy ,
                         math.sqrt((self.x - enemy.x)**2 + (self.y-enemy.y)**2)
                     ])
-                    print(agg, most, least)
                     break
 
         if len(canidates) > pierce > 0:
@@ -198,7 +211,10 @@ class Player(entities.PhysicsEntity):
         self.firing = False
 
     def parry(self):
+        if self.local_time - self.cd_lst[3] > 1:
+            return
         self.cd_lst[3] = self.local_time
+        self.gaurding = self.local_time
 
     def reload(self):
         current = self.Primary if self.Primary_Equiped else self.Secondary

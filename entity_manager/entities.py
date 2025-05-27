@@ -1,7 +1,7 @@
 import pygame
 
 class PhysicsEntity:
-    def __init__(self, hitbox = (5,5), pos = (0,0)):
+    def __init__(self, hitbox = (5,5), pos = (0,0), img = ''):
         #hitbox
         self.hx = hitbox[0]
         self.hy = hitbox[1]

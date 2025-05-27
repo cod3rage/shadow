@@ -1,6 +1,6 @@
 import pygame
 import random
-from entity_manager import ai_entity, entities, player
+from entity_manager import ai_entity, entities, player, wave_manager
 
 class App:
     def __init__(self):
@@ -20,20 +20,13 @@ class App:
         self.allied_forces = entities.EntityGroup('ally', [self.player])
         self.enemies_forces = entities.EntityGroup('enemy')
 
+        self.manager = wave_manager.Manager(self.enemies_forces)
+
         # test units
-        for a in range(12):
-            self.enemies_forces.new(ai_entity.Transfigured((0 - a * 20, 0)))
-            self.enemies_forces.new(ai_entity.Vengful())
-            self.enemies_forces.new(ai_entity.Thunder())
-            self.enemies_forces.new(ai_entity.JoGoat())
-            self.enemies_forces.new(ai_entity.BigRaga((720,0)))  
         
         self.player.enemies = self.enemies_forces
         self.allied_forces.enemies = self.enemies_forces
         self.enemies_forces.enemies = self.allied_forces
-
-        self.allied_forces.retarget()
-        self.enemies_forces.retarget()
 
 
     # process organizer
@@ -54,7 +47,7 @@ class App:
 
 
 
-    # processes
+    # processe
     def inputs(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -73,8 +66,8 @@ class App:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.player.begin_shoot()
-                if event.button == 3:
-                    self.player.parry()
+                # if event.button == 3:
+                #     self.player.parry()
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     self.player.end_shoot()
@@ -93,6 +86,7 @@ class App:
         if self.cycle_tick == 0:
             self.allied_forces.retarget()
             self.enemies_forces.retarget()
+        self.manager.update(self.tick)
 
     def render(self):
         self.screen.fill((0,0,0))
